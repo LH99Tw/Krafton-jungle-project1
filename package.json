@@ -10,9 +10,13 @@
   },
   "dependencies": {
     "@vitejs/plugin-react": "latest",
-    "vite": "latest",
     "react": "latest",
     "react-dom": "latest",
-    "react-router-dom": "latest"
+    "react-router-dom": "latest",
+    "three": "^0.185.1",
+    "vite": "latest"
+  },
+  "devDependencies": {
+    "playwright": "^1.62.1"
   }
 }
