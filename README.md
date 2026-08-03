@@ -131,3 +131,4 @@ Vercel을 사용할 경우 SPA rewrite를 설정합니다. GitHub Pages를 사�
 
 - GitHub: <https://github.com/LH99Tw>
 - GitBlog: <https://lh99tw.github.io>
+- CI/CD 및 Vercel 배포: [docs/CI-CD.md](./docs/CI-CD.md)
