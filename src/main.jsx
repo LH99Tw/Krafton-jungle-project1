@@ -274,6 +274,23 @@ function About() {
 
 function NameLockup() { return <><span>LEE</span><span>JUHAN</span></>; }
 
+function AboutReference() {
+  const facts = [['이름', '이주한'], ['포지션', 'Backend · AI Engineer'], ['위치', 'Korea'], ['나이', '추후 공개'], ['학교', '추후 입력'], ['전공', '추후 입력']];
+  const skills = ['Python', 'FastAPI', 'JavaScript', 'SQL'];
+  const interests = ['AI', '금융', '기록', '취미'];
+  const blogLinks = [['GitBlog', 'https://lh99tw.github.io/'], ['GitHub', 'https://github.com/LH99Tw'], ['프로그래밍', 'https://lh99tw.github.io/categories/programming/']];
+  return <main className="light-page about-reference about-reference-grid">
+    <section className="about-grid-hero">
+      <div className="about-grid-portrait"><img src="/assets/works/alpha-laboratory-hero.png" alt="이주한의 작업 이미지" /></div>
+      <div className="about-grid-hero-copy"><span className="about-grid-eyebrow">DEVELOPER</span><h1>이주한</h1><p>기록하며 성장하고,<br />문제를 구조화합니다.</p><a href="https://lh99tw.github.io/profile/" target="_blank" rel="noreferrer">자세히 보기 →</a></div>
+    </section>
+    <section className="about-grid-panel about-grid-about"><h2>ABOUT</h2><div className="about-grid-columns"><div className="about-grid-facts">{facts.map(([label, value]) => <div key={label}><span>{label}</span><strong>{value}</strong></div>)}</div><div className="about-grid-list"><div><h3>EDUCATION</h3><p>학교와 전공은<br />추후 업데이트합니다.</p></div><div><h3>SKILLS</h3>{skills.map((skill, index) => <p className="about-skill" key={skill}><span>{skill}</span><i style={{ '--skill-width': `${62 + index * 7}%` }} /></p>)}</div><div><h3>TOOLS</h3><p className="about-tools">◈　▣　▤　◍</p></div><div><h3>INTERESTS</h3><p className="about-tags">{interests.map(item => <b key={item}>#{item}</b>)}</p></div></div></div></section>
+    <section className="about-grid-goal"><h2>GOAL</h2><div className="about-grid-goal-list"><article><span>01</span><h3>기록하는 개발자</h3><p>배운 것을 다시 설명하고, 지속적으로 성장합니다.</p></article><article><span>02</span><h3>문제를 해결하는 개발자</h3><p>복잡한 문제를 작은 단위로 나누어 해결합니다.</p></article><article><span>03</span><h3>가치를 만드는 개발자</h3><p>사용자의 맥락을 이해하고 필요한 서비스를 만듭니다.</p></article></div></section>
+    <section className="about-grid-tmi"><div className="about-grid-section-heading"><h2>SMALL<br />THINGS</h2><p>프로젝트 바깥의<br />작고 사적인 취향들.</p></div><div className="about-grid-tmi-list"><article><div className="tmi-visual tmi-camera" /><h3>기록하기</h3><p>배운 내용과 실패한 접근을 글로 남깁니다.</p></article><article><div className="tmi-visual tmi-record" /><h3>음악 듣기</h3><p>집중이 필요할 때 음악을 틀어둡니다.</p></article><article><div className="tmi-visual tmi-plant" /><h3>작은 습관</h3><p>매일의 리듬과 주변의 변화를 관찰합니다.</p></article><article><div className="tmi-visual tmi-book" /><h3>읽고 기록하기</h3><p>읽은 문장을 다시 적으며 생각을 정리합니다.</p></article></div></section>
+    <footer className="about-grid-footer"><div><h2>CONTACT</h2><p>언제든 편하게 연락 주세요.</p>{blogLinks.map(([label, href]) => <a key={label} href={href} target="_blank" rel="noreferrer">↗　{label}</a>)}</div><div className="about-grid-footer-mark" aria-hidden="true"><i /><i /><i /><i /><i /><i /></div></footer>
+  </main>;
+}
+
 function MediaSlot({ hero = false, compact = false, label, image }) {
   return <div className={`media-slot ${hero ? 'media-slot-hero' : ''} ${compact ? 'media-slot-compact' : ''}`} aria-label="미디어 준비 영역" style={image ? { backgroundImage: `url(${image})` } : undefined}><span>{label}</span></div>;
 }
