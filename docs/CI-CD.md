@@ -26,8 +26,9 @@ GitHub 저장소의 `Settings → Secrets and variables → Actions`에서 다�
 | Secret | 값 | 설명 |
 | --- | --- | --- |
 | `VERCEL_TOKEN` | Vercel Personal Token | CLI 인증 토큰 |
-| `VERCEL_ORG_ID` | `team_uzvkNoPZJBOu7M7Y3Pq5a00J` | Vercel 팀 ID |
 | `VERCEL_PROJECT_ID` | `prj_DHymUN7j17fMjaEUl4dAaYG5uyzq` | `lee-juhan-project-reel` 프로젝트 ID |
+
+팀 scope는 workflow에 `lee-2ca3`로 지정되어 있습니다. `VERCEL_ORG_ID` Secret은 더 이상 사용하지 않습니다.
 
 토큰은 저장소 파일이나 workflow 로그에 직접 기록하지 않습니다. `VERCEL_TOKEN`은 Vercel 계정의 Personal Account Settings에서 생성합니다.
 
