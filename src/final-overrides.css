@@ -239,6 +239,24 @@
 .works-link span { margin-left: 10px; font-size: 15px; }
 .works-link:hover { opacity: .55; }
 
+/* Keep white navigation readable over both dark and light image areas. */
+.site-header {
+  mix-blend-mode: normal;
+}
+
+.site-header a,
+.site-header button,
+.home-nav,
+.chapter-wheel {
+  color: #fff;
+  mix-blend-mode: difference;
+}
+
+.site-header .brand-link {
+  color: #fff;
+  mix-blend-mode: difference;
+}
+
 .home-image-fallback {
   position: absolute;
   inset: 0;
