@@ -3,7 +3,7 @@
     display: block;
     margin: 70px -20px 0;
     padding: 78px 30px 120px;
-    background: #282526;
+    background: #332a2d;
     color: #fff;
   }
 
@@ -57,7 +57,7 @@
     display: block;
     margin: 50px -20px 0;
     padding: 58px 20px 86px;
-    background: #282526;
+    background: #332a2d;
     color: #fff;
   }
 
@@ -209,7 +209,7 @@
   filter: brightness(1.08) drop-shadow(0 4px 5px rgba(30, 25, 20, .14));
 }
 
-.about-reference-grid .about-grid-footer { background: #282526 !important; }
+.about-reference-grid .about-grid-footer { background: #332a2d !important; }
 .about-reference-grid .about-grid-footer-mark { display: none !important; }
 .about-reference-grid .about-grid-footer { padding-bottom: 42px !important; }
 .about-reference-grid .about-grid-footer > div:first-child {
@@ -239,20 +239,22 @@
 .works-link span { margin-left: 10px; font-size: 15px; }
 .works-link:hover { opacity: .55; }
 
-/* Keep white navigation readable over both dark and light image areas. */
+/* Keep fixed UI readable over both dark and light image areas. Blend the
+   header as one layer so brand, route links, external links, and menu lines
+   invert together instead of competing with one another. */
 .site-header {
-  mix-blend-mode: normal;
+  color: #fff;
+  mix-blend-mode: difference !important;
 }
 
 .site-header a,
-.site-header button,
-.home-nav,
-.chapter-wheel {
-  color: #fff;
-  mix-blend-mode: difference;
+.site-header button {
+  color: inherit;
+  mix-blend-mode: normal !important;
 }
 
-.site-header .brand-link {
+.home-nav,
+.chapter-wheel {
   color: #fff;
   mix-blend-mode: difference;
 }
@@ -321,6 +323,58 @@ body { background: #171717 url('/assets/works/snapocket.jpg') center / cover no-
     filter: blur(0px) saturate(1) contrast(1) brightness(1);
     transform: scale(1);
   }
+}
+
+/* Keep the reel/chapter strip visible throughout a drag or wheel turn. */
+.home-visual .reel-viewport,
+.home-visual .chapter-wheel {
+  visibility: visible !important;
+}
+
+.home-visual .chapter-wheel {
+  opacity: 1 !important;
+  filter: none !important;
+  transition: none !important;
+}
+
+.home-visual.is-changing .chapter-wheel {
+  opacity: 1 !important;
+  filter: none !important;
+  transform: translateX(-50%) !important;
+  transition: none !important;
+}
+
+.home-visual.is-changing .chapter-item {
+  visibility: visible !important;
+  animation: none !important;
+  transition: transform .76s cubic-bezier(.19,1,.22,1), color .2s ease !important;
+}
+
+.home-visual.is-changing .reel-viewport,
+.home-visual.is-changing .home-image-fallback {
+  opacity: 1 !important;
+  visibility: visible !important;
+  filter: saturate(.72) contrast(1.08) !important;
+}
+
+/* Keep typography in its authored color. Do not invert it against the image. */
+.site-header,
+.home-nav,
+.chapter-wheel {
+  mix-blend-mode: normal !important;
+}
+
+.site-header {
+  color: #fff !important;
+}
+
+.site-shell.about-shell .site-header {
+  color: #1d1d1f !important;
+}
+
+.scroll-progress {
+  mix-blend-mode: normal !important;
+  background: currentColor !important;
 }
 
 /* Motion pass: one owner per transition layer. */
@@ -433,6 +487,100 @@ body { background: #171717 url('/assets/works/snapocket.jpg') center / cover no-
   pointer-events: auto;
 }
 
+.home-visual.is-changing .home-nav .slide-prev,
+.home-visual.is-changing .home-nav .slide-next {
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+.home-visual.is-changing .chapter-wheel {
+  opacity: 1 !important;
+  filter: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+.home-visual.is-changing .chapter-item {
+  animation: none !important;
+  transition: none !important;
+}
+
+@media (max-width: 800px) {
+  .home-visual .home-image-fallback {
+    display: block;
+    inset: 0;
+    transform: none !important;
+    background-size: 100% auto !important;
+    background-position: center center !important;
+    background-repeat: no-repeat !important;
+  }
+
+  .home-visual .home-image-fallback::before,
+  .home-visual .home-image-fallback::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    z-index: 1;
+    height: 22%;
+    pointer-events: none;
+    -webkit-backdrop-filter: blur(13px);
+    backdrop-filter: blur(13px);
+  }
+
+  .home-visual .home-image-fallback::before {
+    top: 0;
+    background: linear-gradient(180deg, rgba(23,23,23,.82), rgba(23,23,23,0));
+    -webkit-mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
+    mask-image: linear-gradient(180deg, #000 0%, transparent 100%);
+  }
+
+  .home-visual .home-image-fallback::after {
+    bottom: 0;
+    background: linear-gradient(0deg, rgba(23,23,23,.82), rgba(23,23,23,0));
+    -webkit-mask-image: linear-gradient(0deg, #000 0%, transparent 100%);
+    mask-image: linear-gradient(0deg, #000 0%, transparent 100%);
+  }
+
+  .home-visual .reel-viewport {
+    display: none !important;
+  }
+
+  .home-nav .slide-prev:hover strong,
+  .home-nav .slide-next:hover strong {
+    transform: none !important;
+  }
+}
+
+/* The navigation reveal belongs to the first mount only. It must not replay when the reel settles. */
+.home-visual.entry-pending .home-nav .slide-current {
+  animation: fade-in .72s .24s both;
+}
+
+.home-visual.entry-pending .home-nav .slide-prev,
+.home-visual.entry-pending .home-nav .slide-next {
+  animation: fade-in .72s .72s both;
+}
+
+.home-visual.entry-complete .home-nav .slide-current,
+.home-visual.entry-complete .home-nav .slide-prev,
+.home-visual.entry-complete .home-nav .slide-next {
+  opacity: 1 !important;
+  filter: none !important;
+  transform: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+.home-visual.entry-complete .home-nav {
+  opacity: 1 !important;
+  filter: none !important;
+  animation: none !important;
+}
+
 .home-visual.is-changing .home-nav .slide-current {
   animation: none !important;
   opacity: 0;
@@ -473,6 +621,16 @@ body { background: #171717 url('/assets/works/snapocket.jpg') center / cover no-
 }
 
 @media (max-width: 800px) {
+  .home-visual.is-changing .home-nav,
+  .home-visual.is-changing .home-nav .slide-prev,
+  .home-visual.is-changing .home-nav .slide-next {
+    opacity: 1 !important;
+    filter: none !important;
+    transform: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
   .detail-project-meta {
     display: grid;
     gap: 5px;
@@ -484,3 +642,113 @@ body { background: #171717 url('/assets/works/snapocket.jpg') center / cover no-
 .about-reference-grid .tmi-photo-card > img { transform: scale(1); transition: transform .7s cubic-bezier(.22,1,.36,1), filter .45s ease; }
 .about-reference-grid .tmi-photo-card::after { inset: 0; transform: scale(1); transition: transform .7s cubic-bezier(.22,1,.36,1); }
 .about-reference-grid .tmi-photo-card:hover::after { transform: scale(1.06); }
+
+/* Mobile Small Things: two independent four-card columns. Every card has a
+   different height, while both columns resolve to the same total height. */
+@media (max-width: 800px) {
+  .site-header {
+    position: absolute;
+  }
+
+  .about-reference-grid .about-grid-hero {
+    width: 100%;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .about-reference-grid .about-grid-hero-copy {
+    flex: 1 1 auto;
+    margin-left: auto;
+    margin-right: 20px;
+    text-align: right;
+  }
+
+  .about-reference-grid .about-grid-hero-lines {
+    width: 100%;
+    margin-left: auto;
+  }
+
+  .about-reference-grid .about-grid-hero-lines small {
+    width: 100%;
+    text-align: right;
+  }
+
+  .about-reference-grid .about-grid-list {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+  }
+
+  .about-reference-grid .about-grid-list > div:first-child {
+    display: none;
+  }
+
+  .about-reference-grid .about-tools-block {
+    grid-column: auto;
+    width: 100%;
+    margin-top: 0;
+  }
+
+  .about-reference-grid .about-grid-list > div:nth-child(2),
+  .about-reference-grid .about-skill {
+    width: 100%;
+  }
+
+  .about-reference-grid .about-skill {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    gap: 12px;
+  }
+
+  .about-reference-grid .about-skill span,
+  .about-reference-grid .about-skill i {
+    width: 100%;
+  }
+
+  .about-reference-grid .about-tools {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .about-reference-grid .about-grid-tmi-list {
+    --mosaic-total: clamp(1040px, 276vw, 1160px);
+    --mosaic-gap: 8px;
+    position: relative;
+    display: block !important;
+    height: var(--mosaic-total);
+  }
+
+  .about-reference-grid .about-grid-tmi-list .tmi-column {
+    display: contents;
+  }
+
+  .about-reference-grid .about-grid-tmi-list .tmi-column article {
+    position: absolute;
+    width: calc(50% - (var(--mosaic-gap) / 2));
+    min-height: 0 !important;
+    margin: 0 !important;
+    grid-column: auto !important;
+    grid-row: auto !important;
+  }
+
+  .about-reference-grid .about-grid-tmi-list .tmi-column article .tmi-visual.tmi-photo-card {
+    width: 100%;
+    height: 100% !important;
+    min-height: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Left: 24 / 28 / 25 / 23%. The pixel deductions add up to the three gaps. */
+  .about-reference-grid .tmi-column:nth-child(1) article:nth-child(1) { left: 0; top: 0; height: calc(24% - 6px) !important; }
+  .about-reference-grid .tmi-column:nth-child(3) article:nth-child(1) { left: 0; top: calc(24% + 2px); height: calc(28% - 7px) !important; }
+  .about-reference-grid .tmi-column:nth-child(1) article:nth-child(2) { left: 0; top: calc(52% + 3px); height: calc(25% - 6px) !important; }
+  .about-reference-grid .tmi-column:nth-child(3) article:nth-child(2) { left: 0; top: calc(77% + 5px); height: calc(23% - 5px) !important; }
+
+  /* Right: 29 / 26 / 21 / 24%. Its card heights also total 100% - 24px. */
+  .about-reference-grid .tmi-column:nth-child(2) article:nth-child(1) { right: 0; top: 0; height: calc(29% - 7px) !important; }
+  .about-reference-grid .tmi-column:nth-child(4) article:nth-child(1) { right: 0; top: calc(29% + 1px); height: calc(26% - 6px) !important; }
+  .about-reference-grid .tmi-column:nth-child(2) article:nth-child(2) { right: 0; top: calc(55% + 3px); height: calc(21% - 5px) !important; }
+  .about-reference-grid .tmi-column:nth-child(4) article:nth-child(2) { right: 0; top: calc(76% + 6px); height: calc(24% - 6px) !important; }
+}
