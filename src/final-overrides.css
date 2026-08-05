@@ -375,6 +375,10 @@ body { background: #171717 url('/assets/works/snapocket.jpg') center / cover no-
   color: #fff !important;
 }
 
+.site-shell.about-shell .works-link {
+  display: none !important;
+}
+
 .scroll-progress {
   mix-blend-mode: normal !important;
   background: currentColor !important;
