@@ -134,16 +134,20 @@ function RouteVisualTransition() {
   return <ThreeBlendTransition from={transition.from} to={transition.to} />;
 }
 
-function Reveal({ children, className = '', style }) {
+function Reveal({ children, className = '', style, animateOnMount = false }) {
   const ref = React.useRef(null);
   const [visible, setVisible] = useState(false);
   useEffect(() => {
     const node = ref.current;
     if (!node) return undefined;
+    if (animateOnMount) {
+      const frame = window.requestAnimationFrame(() => setVisible(true));
+      return () => window.cancelAnimationFrame(frame);
+    }
     const observer = new IntersectionObserver(([entry]) => { if (entry.isIntersecting) { setVisible(true); observer.unobserve(node); } }, { threshold: 0.12 });
     observer.observe(node);
     return () => observer.disconnect();
-  }, []);
+  }, [animateOnMount]);
   return <div ref={ref} style={style} className={`reveal ${visible ? 'is-visible' : ''} ${className}`}>{children}</div>;
 }
 
@@ -300,7 +304,7 @@ function Home() {
 }
 
 function WorksList() {
-  return <main className="light-page works-page"><Reveal className="page-intro"><span className="eyebrow">PROJECT REEL / 001—005</span><h1>Works</h1></Reveal><div className="works-index"><Link className="index-home" to="/"><span>00</span><strong>Home</strong><em>Return to the reel ↗</em></Link>{works.map((work, index) => <Reveal key={work.slug} className="work-reveal" style={{ '--reveal-delay': `${index * 70}ms` }}><Link className="index-row" to={`/works/${work.slug}`}><span className="index-number">{work.number}</span><span className="index-media"><img src={work.heroImage} alt="" /><b>{work.shortTitle}</b></span><span className="index-copy"><strong>{work.title}</strong><em>{work.oneLine}</em></span><span className="index-meta">{work.category}<br />{work.year}</span><span className="index-arrow">↗</span></Link></Reveal>)}</div></main>;
+  return <main className="light-page works-page"><Reveal className="page-intro" animateOnMount><span className="eyebrow">PROJECT REEL / 001—005</span><h1>Works</h1></Reveal><div className="works-index"><Link className="index-home" to="/"><span>00</span><strong>Home</strong><em>Return to the reel ↗</em></Link>{works.map((work, index) => <Reveal key={work.slug} className="work-reveal" animateOnMount style={{ '--reveal-delay': `${index * 70}ms` }}><Link className="index-row" to={`/works/${work.slug}`}><span className="index-number">{work.number}</span><span className="index-media"><img src={work.heroImage} alt="" /><b>{work.shortTitle}</b></span><span className="index-copy"><strong>{work.title}</strong><em>{work.oneLine}</em></span><span className="index-meta">{work.category}<br />{work.year}</span><span className="index-arrow">↗</span></Link></Reveal>)}</div></main>;
 }
 
 function WorkDetail() {
