@@ -162,6 +162,18 @@ const liquidFragmentShader = `varying vec2 vUv; uniform sampler2D texture1; unif
 
 const heroImageAspect = 1672 / 941;
 
+// Start loading the entire reel before the first interaction. The same texture
+// objects are reused for every turn so fast wheel input never swaps in a cold image.
+const reelTextureLoader = new THREE.TextureLoader();
+const reelTextureBuffer = works.map((work) => {
+  const texture = reelTextureLoader.load(work.heroImage);
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.minFilter = THREE.LinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = false;
+  return texture;
+});
+
 function createLiquidScene(mount, fromTexture, toTexture, direction = 1) {
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
@@ -247,9 +259,7 @@ function ThreeReel({ position }) {
     mount.appendChild(renderer.domElement);
     renderer.domElement.className = 'three-reel-canvas';
     const geometry = new THREE.PlaneGeometry(2, 2, 48, 48);
-    const loader = new THREE.TextureLoader();
-    const textures = works.map((work) => loader.load(work.heroImage));
-    textures.forEach((texture) => { texture.colorSpace = THREE.SRGBColorSpace; texture.minFilter = THREE.LinearFilter; texture.magFilter = THREE.LinearFilter; });
+    const textures = reelTextureBuffer;
     const initialBase = Math.floor(positionRef.current);
     const uniforms = { texture1: { value: textures[((initialBase % works.length) + works.length) % works.length] }, texture2: { value: textures[((initialBase + 1) % works.length + works.length) % works.length] }, progress: { value: positionRef.current - initialBase }, time: { value: 0 }, direction: { value: 1 }, planeAspect: { value: 1 }, imageAspect1: { value: heroImageAspect }, imageAspect2: { value: heroImageAspect } };
     const material = new THREE.ShaderMaterial({ uniforms, transparent: true, vertexShader: liquidVertexShader, fragmentShader: liquidFragmentShader });
@@ -277,15 +287,16 @@ function ThreeReel({ position }) {
     raf = requestAnimationFrame(draw);
     renderer.domElement.addEventListener('three-reel-position', onPosition);
     updatePosition(positionRef.current);
-    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); renderer.domElement.removeEventListener('three-reel-position', onPosition); geometry.dispose(); material.dispose(); textures.forEach((texture) => texture.dispose()); renderer.dispose(); if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement); };
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', onResize); renderer.domElement.removeEventListener('three-reel-position', onPosition); geometry.dispose(); material.dispose(); renderer.dispose(); if (mount.contains(renderer.domElement)) mount.removeChild(renderer.domElement); };
   }, []);
   return <div ref={mountRef} className="three-reel" aria-hidden="true" />;
 }
 
 function Home() {
-  const [position, setPosition] = useState(2); const [direction, setDirection] = useState(1); const positionRef = React.useRef(2); const settleTimerRef = React.useRef(null); const settleFrameRef = React.useRef(0); const index = ((Math.round(position) % works.length) + works.length) % works.length; const current = works[index]; const previous = works[(index - 1 + works.length) % works.length]; const next = works[(index + 1) % works.length]; const changing = Math.abs(position - Math.round(position)) > 0.012;
+  const [position, setPosition] = useState(2); const [direction, setDirection] = useState(1); const [entryComplete, setEntryComplete] = useState(false); const positionRef = React.useRef(2); const settleTimerRef = React.useRef(null); const settleFrameRef = React.useRef(0); const index = ((Math.round(position) % works.length) + works.length) % works.length; const current = works[index]; const previous = works[(index - 1 + works.length) % works.length]; const next = works[(index + 1) % works.length]; const changing = Math.abs(position - Math.round(position)) > 0.012;
+  useEffect(() => { const timer = window.setTimeout(() => setEntryComplete(true), 1250); return () => window.clearTimeout(timer); }, []);
   const applyPosition = React.useCallback((nextPosition) => { positionRef.current = nextPosition; setPosition(nextPosition); }, []);
-  const settleTo = React.useCallback((target) => { cancelAnimationFrame(settleFrameRef.current); const start = positionRef.current; const startedAt = performance.now(); const duration = 600; const tick = (now) => { const raw = Math.min((now - startedAt) / duration, 1); const eased = 1 - Math.pow(1 - raw, 3); applyPosition(start + (target - start) * eased); if (raw < 1) settleFrameRef.current = requestAnimationFrame(tick); else { positionRef.current = target; setPosition(target); } }; settleFrameRef.current = requestAnimationFrame(tick); }, [applyPosition]);
+  const settleTo = React.useCallback((target) => { cancelAnimationFrame(settleFrameRef.current); const start = positionRef.current; const startedAt = performance.now(); const duration = 600; const tick = (now) => { const raw = Math.min((now - startedAt) / duration, 1); const eased = 1 - Math.pow(1 - raw, 3); applyPosition(start + (target - start) * eased); if (raw < 1) settleFrameRef.current = requestAnimationFrame(tick); else { const normalized = ((target % works.length) + works.length) % works.length; positionRef.current = normalized; setPosition(normalized); } }; settleFrameRef.current = requestAnimationFrame(tick); }, [applyPosition]);
   const goToChapter = React.useCallback((chapterDirection) => { cancelAnimationFrame(settleFrameRef.current); window.clearTimeout(settleTimerRef.current); setDirection(chapterDirection >= 0 ? 1 : -1); settleTo(Math.round(positionRef.current) + chapterDirection); }, [settleTo]);
   const scheduleSettle = React.useCallback(() => { window.clearTimeout(settleTimerRef.current); settleTimerRef.current = window.setTimeout(() => settleTo(Math.round(positionRef.current)), 120); }, [settleTo]);
   const go = React.useCallback((amount) => { cancelAnimationFrame(settleFrameRef.current); window.clearTimeout(settleTimerRef.current); setDirection(amount >= 0 ? 1 : -1); applyPosition(positionRef.current + amount); scheduleSettle(); }, [applyPosition, scheduleSettle]);
@@ -300,7 +311,7 @@ function Home() {
     const offset = circularChapterOffset(itemIndex, position);
     return <button key={work.slug} className={`chapter-item ${itemIndex === index ? 'is-active' : ''}`} style={{ transform: `translateX(${offset * 162}px) translateZ(${Math.abs(offset) * -70}px) rotateY(${offset * -20}deg)` }} onClick={() => { if (itemIndex !== index) goToChapter(offset > 0 ? 1 : -1); }} type="button"><span>#{work.number}</span><strong>{work.shortTitle}</strong></button>;
   });
-  return <main className="home-page"><div className={`home-visual ${changing ? 'is-changing' : ''} ${direction > 0 ? 'slide-forward' : 'slide-back'}`}><div className="home-image-fallback" style={{ backgroundImage: `url(${current.heroImage})` }} aria-hidden="true" /><div className="reel-viewport"><ThreeReel position={position} /></div><div className="home-identity" /><div className="home-caption" key={`caption-${current.slug}`}><span className="caption-number">#{current.number}</span><span className="caption-title">{current.title}</span><span className="caption-category">{current.category}</span></div><div className="chapter-wheel" aria-label="Project chapters"><div className="chapter-wheel-track">{chapterItems}</div></div><div className="home-nav"><button className="slide-link slide-prev" onClick={() => goToChapter(-1)} type="button"><span className="slide-label">PREVIOUS</span><strong>← #{previous.number} {previous.shortTitle}</strong></button><Link className="slide-link slide-current" to={`/works/${current.slug}`}><span className="slide-label">OPEN WORK</span><strong>VIEW DETAILS ↗</strong></Link><button className="slide-link slide-next" onClick={() => goToChapter(1)} type="button"><span className="slide-label">NEXT</span><strong>#{next.number} {next.shortTitle} →</strong></button></div><div className="home-entry-veil" aria-hidden="true" /></div></main>;
+  return <main className="home-page"><div className={`home-visual ${changing ? 'is-changing' : ''} ${direction > 0 ? 'slide-forward' : 'slide-back'} ${entryComplete ? 'entry-complete' : 'entry-pending'}`}><div className="home-image-fallback" style={{ backgroundImage: `url(${current.heroImage})` }} aria-hidden="true" /><div className="reel-viewport"><ThreeReel position={position} /></div><div className="home-identity" /><div className="home-caption" key={`caption-${current.slug}`}><span className="caption-number">#{current.number}</span><span className="caption-title">{current.title}</span><span className="caption-category">{current.category}</span></div><div className="chapter-wheel" aria-label="Project chapters"><div className="chapter-wheel-track">{chapterItems}</div></div><div className="home-nav"><button className="slide-link slide-prev" onClick={() => goToChapter(-1)} type="button"><span className="slide-label">PREVIOUS</span><strong>← #{previous.number} {previous.shortTitle}</strong></button><Link className="slide-link slide-current" to={`/works/${current.slug}`}><span className="slide-label">OPEN WORK</span><strong>VIEW DETAILS ↗</strong></Link><button className="slide-link slide-next" onClick={() => goToChapter(1)} type="button"><span className="slide-label">NEXT</span><strong>#{next.number} {next.shortTitle} →</strong></button></div><div className="home-entry-veil" aria-hidden="true" /></div></main>;
 }
 
 function WorksList() {
