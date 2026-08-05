@@ -209,7 +209,10 @@
   filter: brightness(1.08) drop-shadow(0 4px 5px rgba(30, 25, 20, .14));
 }
 
-.about-reference-grid .about-grid-footer { background: #282526 !important; }
+.about-reference-grid .about-grid-footer { background: #3a2923 !important; }
+.about-reference-grid .about-grid-tmi {
+  background: #3a2923 !important;
+}
 .about-reference-grid .about-grid-footer-mark { display: none !important; }
 .about-reference-grid .about-grid-footer { padding-bottom: 42px !important; }
 .about-reference-grid .about-grid-footer > div:first-child {
