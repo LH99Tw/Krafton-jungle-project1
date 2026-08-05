@@ -75,6 +75,8 @@ Publishable key만 브라우저에 노출하고, service role key나 Supabase ac
 3. Vercel dashboard에서 deployment build log와 deployment status를 확인합니다.
 4. React Router 경로(`/works/`, `/works/:slug`, `/about/`)를 직접 새로고침해 rewrite가 동작하는지 확인합니다.
 
+Vercel Project Settings의 `Root Directory`는 `./`(저장소 루트), `Build Command`는 `npm run build`, `Output Directory`는 `dist`로 설정합니다. 이 저장소의 `vercel.json`은 먼저 `dist`의 실제 정적 파일을 제공한 뒤, React Router의 나머지 경로만 `index.html`로 fallback합니다.
+
 ## 현재 production URL
 
 https://lee-juhan-project-reel.vercel.app
