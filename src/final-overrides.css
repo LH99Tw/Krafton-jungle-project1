@@ -379,6 +379,23 @@ body { background: #171717 url('/assets/works/snapocket.jpg') center / cover no-
   display: none !important;
 }
 
+/* Avoid persistent browser focus boxes after mouse/touch clicks while keeping keyboard focus visible. */
+a,
+button {
+  -webkit-tap-highlight-color: transparent;
+}
+
+a:focus:not(:focus-visible),
+button:focus:not(:focus-visible) {
+  outline: none !important;
+}
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
 .scroll-progress {
   mix-blend-mode: normal !important;
   background: currentColor !important;
